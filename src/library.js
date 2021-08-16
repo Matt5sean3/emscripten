@@ -3577,11 +3577,20 @@ LibraryManager.library = {
   },
 
   $handleException: function(e) {
-    if (e instanceof ExitStatus || e === 'unwind') {
+    // Certain exception types we do not treat as errors since they are used for
+    // internal control flow.
+    // 1. ExitStatus, which is thrown by exit()
+    // 2. "unwind", which is thrown by emscripten_unwind_to_js_event_loop() and others
+    //    that wish to return to JS event loop.
+    if (e instanceof ExitStatus || e == 'unwind') {
       return;
     }
-    // And actual unexpected user-exectpion occured
-    if (e && typeof e === 'object' && e.stack) err('exception thrown: ' + [e, e.stack]);
+    // Anything else is an unexpected exception and we treat it as hard error.
+    var toLog = e;
+    if (e && typeof e === 'object' && e.stack) {
+      toLog = [e, e.stack];
+    }
+    err('exception thrown: ' + toLog);
     throw e;
   },
 

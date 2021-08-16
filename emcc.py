@@ -1826,7 +1826,8 @@ def phase_linker_setup(options, state, newargs, settings_map):
       '$demangle',
       '$demangleAll',
       '$jsStackTrace',
-      '$stackTrace'
+      '$stackTrace',
+      '$handleException'
     ]
 
   if settings.FILESYSTEM and not settings.BOOTSTRAPPING_STRUCT_INFO and not settings.STANDALONE_WASM:
@@ -1941,6 +1942,8 @@ def phase_linker_setup(options, state, newargs, settings_map):
     if not settings.MINIMAL_RUNTIME:
       # keepRuntimeAlive does not apply to MINIMAL_RUNTIME.
       settings.EXPORTED_RUNTIME_METHODS += ['keepRuntimeAlive']
+      # callMain by `main` to handle exceptions
+      settings.DEFAULT_LIBRARY_FUNCS_TO_INCLUDE += ['$handleException']
 
     if settings.MODULARIZE:
       if not settings.EXPORT_ES6 and settings.EXPORT_NAME == 'Module':
